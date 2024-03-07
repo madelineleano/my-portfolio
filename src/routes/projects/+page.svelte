@@ -1,16 +1,21 @@
+<script>
+  import projects from "$lib/projects.json";
+  import Project from "$lib/Project.svelte";
+  export let hLevel = 2;
+</script>
 
 <svelte:head>
-	<title>My projects!</title>
+  <title>My projects!</title>
 </svelte:head>
-<script> import projects from '$lib/projects.json'; </script>
-<h1><div class="projects">
+
+<h1>
+  <div class="projects">
+    <h1>{projects.length} projects</h1>
 
     {#each projects as p}
-    <article>
-        <h2>{p.title}</h2>
-        <img src={p.image} alt="">
-        <p>{p.description}</p>
-    </article>
+      <article>
+        <Project info={p} />
+      </article>
     {/each}
-</div>
+  </div>
 </h1>
