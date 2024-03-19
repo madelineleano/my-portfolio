@@ -36,19 +36,19 @@ for (let p of pages) {
 
 }
 
-document.body.insertAdjacentHTML("afterbegin", `
-	<label class="color-scheme">
-		Theme:
-		<select>
-			<option value = "light"> Light </option>
+// document.body.insertAdjacentHTML("afterbegin", `
+// 	<label class="color-scheme">
+// 		Theme:
+// 		<select>
+// 			<option value = "light"> Light </option>
 
-			<option value = "light dark"> Automatic </option>
+// 			<option value = "light dark"> Automatic </option>
 
-			<option value = "dark"> Dark </option>
+// 			<option value = "dark"> Dark </option>
 
-		</select>
-	</label>`
-);
+// 		</select>
+// 	</label>`
+// );
 
 var select = document.querySelector('select');
 

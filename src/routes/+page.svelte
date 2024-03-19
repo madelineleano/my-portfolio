@@ -14,14 +14,35 @@
   but currently reside in Boston. Enjoy the website!
 </p>
 
+{#await fetch("https://api.github.com/users/madelineleano")}
+  <p>Loading...</p>
+{:then response}
+  {#await response.json()}
+    <p>Decoding...</p>
+  {:then data}
+    <h2>GITHUB STATS</h2>
+    <p>Followers: {data.followers}</p>
+    <p>Following: {data.following}</p>
+    <p>Public Repos: {data.public_repos}</p>
+  {:catch error}
+    <p class="error">
+      Something went wrong: {error.message}
+    </p>
+  {/await}
+{:catch error}
+  <p class="error">
+    Something went wrong: {error.message}
+  </p>
+{/await}
+
 <div class="projects">
   <h2>Latest Projects!</h2>
-  <br/>
-  <br/>
+  <br />
+  <br />
 
   {#each projects.slice(0, 3) as p}
     <article>
-      <Project info={p} hLevel = 3 />
+      <Project info={p} hLevel="3" />
     </article>
   {/each}
 </div>
