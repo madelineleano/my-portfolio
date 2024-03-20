@@ -7,23 +7,39 @@
 
   let query = "";
 
-  let rolledData = d3.rollups(
-    projects,
-    (v) => v.length,
-    (d) => d.year
-  );
-  let pieData = rolledData.map(([year, count]) => {
-    return { value: count, label: year };
+  let pieData;
+
+  $: filteredProjects = projects.filter((project) => {
+    let values = Object.values(project).join("\n").toLowerCase();
+    return values.includes(query.toLowerCase());
   });
 
-  
-  let filteredProjects;
+  $: {
+    pieData = {};
 
-  $: filteredProjects = projects.filter(project => {
-	let values = Object.values(project).join("\n").toLowerCase();
-	return values.includes(query.toLowerCase());
-});
+    let rolledData = d3.rollups(
+      filteredProjects,
+      (v) => v.length,
+      (d) => d.year
+    );
+    pieData = rolledData.map(([year, count]) => {
+      return { value: count, label: year };
+    });
+  }
 
+  let selectedYearIndex = -1;
+
+  let selectedYear;
+$: selectedYear = selectedYearIndex > -1 ? pieData[selectedYearIndex].label : null;
+
+let filteredProjectsByYear;
+$: filteredProjectsByYear = filteredProjects.filter((project) => {
+  if (selectedYear) {
+		return project.year === selectedYear;
+	}
+
+	return true;
+  });
 
 
 </script>
@@ -34,9 +50,7 @@
 
 <h1>{projects.length} projects</h1>
 
-
-
-<Pie data={pieData} />
+<Pie data={pieData} bind:selectedIndex={selectedYearIndex} />
 
 <input
   type="search"
@@ -46,11 +60,9 @@
 />
 
 <div class="projects">
-  {#each filteredProjects as p }
+  {#each filteredProjectsByYear as p}
     <article>
       <Project info={p} />
     </article>
   {/each}
 </div>
-
-
