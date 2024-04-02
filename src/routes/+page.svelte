@@ -4,7 +4,7 @@
 </script>
 
 <svelte:head>
-  <title>My webiste!</title>
+  <title>My website!</title>
 </svelte:head>
 
 <h1>Madeline Leano</h1>
