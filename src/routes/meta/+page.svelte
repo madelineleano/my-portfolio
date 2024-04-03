@@ -1,6 +1,8 @@
 <script>
   import * as d3 from "d3";
   import { onMount } from "svelte";
+  import Pie from "$lib/Pie.svelte";
+
 
   let data = [];
   let commits = [];
@@ -121,6 +123,7 @@
   $: selectedLines = (hasSelection ? selectedCommits : commits).flatMap(
     (d) => d.lines
   );
+  $: languageBreakdown = d3.rollup(selectedLines,  amount => amount.length, lang => lang.type);
 </script>
 
 <svelte:head>
@@ -174,7 +177,13 @@
 </svg>
 <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
 
-<p>info</p>
+{#each languageBreakdown as [language, lines] }
+  <p>{language}: </p>
+  <p> {Math.round((lines / selectedLines.length) * 100)}%</p>
+{/each}
+
+<Pie data = {Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/>
+
 
 <dl class="stats">
   <dt>Total Lines of Code:</dt>
