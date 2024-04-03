@@ -51,19 +51,19 @@ for (let p of pages) {
 // 	</label>`
 // );
 
-var select = document.querySelector('select');
+// var select = document.querySelector('select');
 
-select.addEventListener("input", function (event) {
+// select.addEventListener("input", function (event) {
 
-	console.log("color scheme changed to", event.target.value);
+// 	console.log("color scheme changed to", event.target.value);
 
-	localStorage.colorScheme = event.target.value;
+// 	localStorage.colorScheme = event.target.value;
 
-	document.documentElement.style.setProperty("color-scheme", event.target.value)
+// 	document.documentElement.style.setProperty("color-scheme", event.target.value)
 
-});
+// });
 
-if ("colorScheme" in localStorage){
-	document.documentElement.style.setProperty("color-scheme", localStorage.colorScheme);
-}
-select.value = localStorage.colorScheme;
+// if ("colorScheme" in localStorage){
+// 	document.documentElement.style.setProperty("color-scheme", localStorage.colorScheme);
+// }
+// select.value = localStorage.colorScheme;
