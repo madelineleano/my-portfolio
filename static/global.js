@@ -10,7 +10,7 @@ let pages = [
 	{url: "resume", title: "Resume"},
 	{url: "contact", title: "Contact"},
 	{url:"https://github.com/madelineleano", title: "Github"},
-	{url : "meta", title: "Meta"},
+	{url: "meta", title: "Meta"},
 ];
 
 let nav = document.createElement("nav");
