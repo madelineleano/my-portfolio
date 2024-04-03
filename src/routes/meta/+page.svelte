@@ -1,128 +1,132 @@
 <script>
-  // import * as d3 from "d3";
-  // import { onMount } from "svelte";
-  // import Pie from "$lib/Pie.svelte";
+  import * as d3 from "d3";
+  import { onMount } from "svelte";
+  import Pie from "$lib/Pie.svelte";
 
-  // let data = [];
-  // let commits = [];
-  // let margin = { top: 10, right: 10, bottom: 30, left: 20 };
-  // let cursor = { x: 0, y: 0 };
-  // let svg;
-  // let brushSelection;
-  // let selectedLines;
+  let data = [];
+  let commits = [];
+  let margin = { top: 10, right: 10, bottom: 30, left: 20 };
+  let cursor = { x: 0, y: 0 };
+  let svg;
+  let brushSelection;
+  let selectedLines;
 
-  // let width = 1000,
-  //   height = 600;
+  let width = 1000,
+    height = 600;
 
-  // let usableArea = {
-  //   top: margin.top,
-  //   right: width - margin.right,
-  //   bottom: height - margin.bottom,
-  //   left: margin.left,
-  // };
-  // usableArea.width = usableArea.right - usableArea.left;
-  // usableArea.height = usableArea.bottom - usableArea.top;
+  let usableArea = {
+    top: margin.top,
+    right: width - margin.right,
+    bottom: height - margin.bottom,
+    left: margin.left,
+  };
+  usableArea.width = usableArea.right - usableArea.left;
+  usableArea.height = usableArea.bottom - usableArea.top;
 
-  // let yAxisGridlines;
+  let yAxisGridlines;
 
-  // function brushed(evt) {
-  //   console.log(evt);
-  //   brushSelection = evt.selection;
-  // }
+  function brushed(evt) {
+    console.log(evt);
+    brushSelection = evt.selection;
+  }
 
-  // function isCommitSelected(commit) {
-  //   if (!brushSelection) {
-  //     return false;
-  //   }
+  function isCommitSelected(commit) {
+    if (!brushSelection) {
+      return false;
+    }
 
-  //   let min = { x: brushSelection[0][0], y: brushSelection[0][1] };
-  //   let max = { x: brushSelection[1][0], y: brushSelection[1][1] };
-  //   let x = xScale(commit.date);
-  //   let y = yScale(commit.hourFrac);
-  //   return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
-  // }
+    let min = { x: brushSelection[0][0], y: brushSelection[0][1] };
+    let max = { x: brushSelection[1][0], y: brushSelection[1][1] };
+    let x = xScale(commit.date);
+    let y = yScale(commit.hourFrac);
+    return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
+  }
 
-  // onMount(async () => {
-  //   data = await d3.csv("loc.csv", (row) => ({
-  //     ...row,
-  //     line: Number(row.line), // or just +row.line
-  //     depth: Number(row.depth),
-  //     length: Number(row.length),
-  //     date: new Date(row.date + "T00:00" + row.timezone),
-  //     datetime: new Date(row.datetime),
-  //   }));
+  onMount(async () => {
+    data = await d3.csv("loc.csv", (row) => ({
+      ...row,
+      line: Number(row.line), // or just +row.line
+      depth: Number(row.depth),
+      length: Number(row.length),
+      date: new Date(row.date + "T00:00" + row.timezone),
+      datetime: new Date(row.datetime),
+    }));
 
-  //   commits = d3
-  //     .groups(data, (d) => d.commit)
-  //     .map(([commit, lines]) => {
-  //       let first = lines[0];
-  //       let { author, date, time, timezone, datetime } = first;
-  //       let ret = {
-  //         id: commit,
-  //         url: "https://github.com/madelineleano/my-portfolio" + commit,
-  //         author,
-  //         date,
-  //         time,
-  //         timezone,
-  //         datetime,
-  //         hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
-  //         totalLines: lines.length,
-  //       };
+    commits = d3
+      .groups(data, (d) => d.commit)
+      .map(([commit, lines]) => {
+        let first = lines[0];
+        let { author, date, time, timezone, datetime } = first;
+        let ret = {
+          id: commit,
+          url: "https://github.com/madelineleano/my-portfolio" + commit,
+          author,
+          date,
+          time,
+          timezone,
+          datetime,
+          hourFrac: datetime.getHours() + datetime.getMinutes() / 60,
+          totalLines: lines.length,
+        };
 
-  //       // Like ret.lines = lines
-  //       // but non-enumerable so it doesn’t show up in JSON.stringify
-  //       Object.defineProperty(ret, "lines", {
-  //         value: lines,
-  //         configurable: true,
-  //         writable: true,
-  //         enumerable: false,
-  //       });
+        // Like ret.lines = lines
+        // but non-enumerable so it doesn’t show up in JSON.stringify
+        Object.defineProperty(ret, "lines", {
+          value: lines,
+          configurable: true,
+          writable: true,
+          enumerable: false,
+        });
 
-  //       return ret;
-  //     });
-  // });
+        return ret;
+      });
+  });
 
-  // $: yScale = d3
-  //   .scaleLinear()
-  //   .domain([0, 24])
-  //   .range([usableArea.bottom, usableArea.top]);
-  // $: xScale = d3
-  //   .scaleTime()
-  //   .domain(d3.extent(commits, (d) => d.datetime))
-  //   .range([usableArea.left, usableArea.right])
-  //   .nice();
+  $: yScale = d3
+    .scaleLinear()
+    .domain([0, 24])
+    .range([usableArea.bottom, usableArea.top]);
+  $: xScale = d3
+    .scaleTime()
+    .domain(d3.extent(commits, (d) => d.datetime))
+    .range([usableArea.left, usableArea.right])
+    .nice();
 
-  // let xAxis, yAxis;
+  let xAxis, yAxis;
 
-  // $: {
-  //   d3.select(xAxis).call(d3.axisBottom(xScale));
-  //   d3.select(yAxis).call(
-  //     d3
-  //       .axisLeft(yScale)
-  //       .tickFormat((d) => String(d % 24).padStart(2, "0") + ":00")
-  //   );
-  // }
+  $: {
+    d3.select(xAxis).call(d3.axisBottom(xScale));
+    d3.select(yAxis).call(
+      d3
+        .axisLeft(yScale)
+        .tickFormat((d) => String(d % 24).padStart(2, "0") + ":00")
+    );
+  }
 
-  // $: {
-  //   d3.select(yAxisGridlines).call(
-  //     d3.axisLeft(yScale).tickFormat("").tickSize(-usableArea.width)
-  //   );
-  // }
+  $: {
+    d3.select(yAxisGridlines).call(
+      d3.axisLeft(yScale).tickFormat("").tickSize(-usableArea.width)
+    );
+  }
 
-  // let hoveredIndex = -1;
-  // $: hoveredCommit = commits[hoveredIndex] ?? {};
+  let hoveredIndex = -1;
+  $: hoveredCommit = commits[hoveredIndex] ?? {};
 
-  // $: {
-  //   d3.select(svg).call(d3.brush().on("start brush end", brushed));
-  //   d3.select(svg).selectAll(".dots, .overlay ~ *").raise();
-  // }
+  $: {
+    d3.select(svg).call(d3.brush().on("start brush end", brushed));
+    d3.select(svg).selectAll(".dots, .overlay ~ *").raise();
+  }
 
-  // $: selectedCommits = brushSelection ? commits.filter(isCommitSelected) : [];
-  // $: hasSelection = brushSelection && selectedCommits.length > 0;
-  // $: selectedLines = (hasSelection ? selectedCommits : commits).flatMap(
-  //   (d) => d.lines
-  // );
-  // $: languageBreakdown = d3.rollup(selectedLines,  amount => amount.length, lang => lang.type);
+  $: selectedCommits = brushSelection ? commits.filter(isCommitSelected) : [];
+  $: hasSelection = brushSelection && selectedCommits.length > 0;
+  $: selectedLines = (hasSelection ? selectedCommits : commits).flatMap(
+    (d) => d.lines
+  );
+  $: languageBreakdown = d3.rollup(
+    selectedLines,
+    (amount) => amount.length,
+    (lang) => lang.type
+  );
 </script>
 
 <svelte:head>
@@ -130,7 +134,7 @@
 </svelte:head>
 
 <h1>Meta</h1>
-<!-- 
+
 <dl
   id="commit-tooltip"
   class="info tooltip"
@@ -175,12 +179,17 @@
 </svg>
 <p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
 
-{#each languageBreakdown as [language, lines] }
-  <p>{language}: </p>
-  <p> {Math.round((lines / selectedLines.length) * 100)}%</p>
+{#each languageBreakdown as [language, lines]}
+  <p>{language}:</p>
+  <p>{Math.round((lines / selectedLines.length) * 100)}%</p>
 {/each}
 
-<Pie data = {Array.from(languageBreakdown).map(([language, lines]) => ({label: language, value: lines}))}/> -->
+<Pie
+  data={Array.from(languageBreakdown).map(([language, lines]) => ({
+    label: language,
+    value: lines,
+  }))}
+/>
 
 <dl class="stats">
   <dt>Total Lines of Code:</dt>
