@@ -7,6 +7,8 @@
   let margin = { top: 10, right: 10, bottom: 30, left: 20 };
   let cursor = { x: 0, y: 0 };
   let svg;
+  let brushSelection;
+  let selectedLines;
 
   let width = 1000,
     height = 600;
@@ -21,6 +23,23 @@
   usableArea.height = usableArea.bottom - usableArea.top;
 
   let yAxisGridlines;
+
+  function brushed(evt) {
+    console.log(evt);
+    brushSelection = evt.selection;
+  }
+
+  function isCommitSelected(commit) {
+    if (!brushSelection) {
+      return false;
+    }
+
+    let min = { x: brushSelection[0][0], y: brushSelection[0][1] };
+    let max = { x: brushSelection[1][0], y: brushSelection[1][1] };
+    let x = xScale(commit.date);
+    let y = yScale(commit.hourFrac);
+    return x >= min.x && x <= max.x && y >= min.y && y <= max.y;
+  }
 
   onMount(async () => {
     data = await d3.csv("loc.csv", (row) => ({
@@ -92,6 +111,16 @@
   let hoveredIndex = -1;
   $: hoveredCommit = commits[hoveredIndex] ?? {};
 
+  $: {
+    d3.select(svg).call(d3.brush().on("start brush end", brushed));
+    d3.select(svg).selectAll(".dots, .overlay ~ *").raise();
+  }
+
+  $: selectedCommits = brushSelection ? commits.filter(isCommitSelected) : [];
+  $: hasSelection = brushSelection && selectedCommits.length > 0;
+  $: selectedLines = (hasSelection ? selectedCommits : commits).flatMap(
+    (d) => d.lines
+  );
 </script>
 
 <svelte:head>
@@ -115,10 +144,9 @@
   <dt>Author</dt>
   <dd>{hoveredCommit.author}</dd>
   <!-- Add: Time, author, lines edited -->
-
 </dl>
 
-<svg viewBox="0 0 {width} {height}">
+<svg viewBox="0 0 {width} {height}" bind:this={svg}>
   <g transform="translate(0, {usableArea.bottom})" bind:this={xAxis} />
   <g
     class="gridlines"
@@ -130,6 +158,7 @@
   <g class="dots">
     {#each commits as commit, index}
       <circle
+        class:selected={isCommitSelected(commit)}
         cx={xScale(commit.datetime)}
         cy={yScale(commit.hourFrac)}
         r="5"
@@ -143,6 +172,7 @@
     {/each}
   </g>
 </svg>
+<p>{hasSelection ? selectedCommits.length : "No"} commits selected</p>
 
 <p>info</p>
 
@@ -178,7 +208,9 @@
       visibility: hidden;
     }
   }
-
+  .selected {
+    fill: red;
+  }
   .tooltip {
     position: fixed;
     top: 1em;
